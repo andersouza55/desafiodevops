@@ -1,0 +1,33 @@
+trigger:
+  branches:
+    include:
+    - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'Instale Node.js'
+
+- script: |
+    npm install
+    npm run build
+  displayName: 'npm install e build'
+    
+- script: |
+    npm run test
+  displayName: 'npm run test'
+
+- task: Kubernetes@1
+  displayName: 'Kubectl apply'
+  inputs:
+    connectionType: Azure Resource Manager
+    azureSubscription: AzureSubscription
+    azureResourceGroup: ResourceGroupName
+    kubernetesCluster: ClusterName
+    command: apply
+    useConfigurationFile: true
+    configurationPath: 'Path configuração do Kubernetes>'
